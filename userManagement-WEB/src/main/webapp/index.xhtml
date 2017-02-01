@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2" />
+<title>userManagement-WEB | echo_list</title>
+</head>
+<body>
+	<h3>List all users</h3>
+	<ui:repeat value="#{userBean.all}" var="value">
+     #{value.id}  #{value.username} <br />
+	</ui:repeat>
+	<br />
+	<h3>Delete existing user</h3>
+	<h:form>
+	Please input the id of the user! <br />
+		<h:inputText value="#{userBean.searchId}" />
+
+		<h:commandButton value="Submit" action="#{userBean.removeUser}" />
+	</h:form>
+	<h3>Update existing user</h3>
+	<h:form>
+	Please input the id and the new name for the user! <br />
+		<h:inputText value="#{userBean.searchId}" />
+		<br />
+		<h:inputText value="#{userBean.username}" />
+		<br />
+		<h:commandButton value="Submit" action="#{userBean.updateUser}" />
+	</h:form>
+	<h3>Add new user</h3>
+	<h:form>
+	Please input name for the new user!
+	<br />
+		<h:inputText value="#{userBean.username}" />
+		<br />
+		<h:commandButton value="Submit" action="#{userBean.addUser}" />
+	</h:form>
+</body>
+</html>
