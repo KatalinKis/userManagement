@@ -1,5 +1,6 @@
 package ejb;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -8,6 +9,7 @@ import javax.persistence.PersistenceContext;
 
 import common.UserManagementInterface;
 import model.IEntity;
+import model.Role;
 import model.User;
 
 
@@ -16,6 +18,7 @@ public class UserBean implements UserManagementInterface {
 
 	@PersistenceContext(unitName ="userManagement-JPA") 
 	private EntityManager entityManager;
+	List<Role> roles = new ArrayList<Role>();
 	
 
 	@SuppressWarnings("unchecked")
@@ -33,6 +36,7 @@ public class UserBean implements UserManagementInterface {
 		User user = new User();
 		user.setId(nr);
 		user.setUsername(username);
+		user.setRoles(roles);
 		entityManager.persist(user);
 		return 0;
 	}
@@ -45,6 +49,11 @@ public class UserBean implements UserManagementInterface {
 
 	public int update(User user) {
 		entityManager.merge(user);
+		return 0;
+	}
+	
+	public int addRole(Role role){
+		roles.add(role);
 		return 0;
 	}
 }

@@ -11,7 +11,7 @@ import java.util.List;
 @Entity
 @Table(name = "roles")
 @NamedQueries({ @NamedQuery(name = "Role.findAll", query = "SELECT r FROM Role r"),
-		@NamedQuery(name = "Role.countAll", query = "select count(r) +1 from Role r") })
+		@NamedQuery(name = "Role.countAll", query = "select count(r) +1 from Role r")})
 public class Role implements Serializable, IEntity {
 	private static final long serialVersionUID = 1L;
 

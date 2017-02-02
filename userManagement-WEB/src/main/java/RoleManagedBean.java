@@ -9,6 +9,7 @@ import javax.naming.NamingException;
 import common.RolesManagementInterface;
 import common.UserManagementInterface;
 import model.Role;
+import model.User;
 
 @Named("roleBean")
 @ApplicationScoped
@@ -32,6 +33,10 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 	}
 
 	public int add(String rolename) {
+		UserManagedBean umb = new UserManagedBean();
+		User requestedUser = umb.getById(Integer.parseInt(searchId));
+		addUser(requestedUser);
+		umb.update(requestedUser);
 		return getRoleManagement().add(rolename);
 	}
 	
@@ -62,8 +67,20 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 		return getRoleManagement().getAllRoles();	
 	}
 	
+	public Role searchRole(String message){
+		return getRoleManagement().searchRole(message);
+	}
+	
+	public Role searchRoleByName(){
+		return searchRole(rolename);
+	}
+	
 	public List<Role> getAll(){
 		return getAllRoles();
+	}
+	
+	public Role getById(int id) {
+		return getRoleManagement().getById(id);
 	}
 
 	public String getSearchId() {
@@ -80,6 +97,12 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 
 	public void setRolename(String rolename) {
 		this.rolename = rolename;
+	}
+
+	@Override
+	public int addUser(User user) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 	

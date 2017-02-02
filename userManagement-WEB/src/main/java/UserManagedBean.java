@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -8,6 +9,7 @@ import javax.naming.NamingException;
 
 import common.UserManagementInterface;
 import model.IEntity;
+import model.Role;
 import model.User;
 
 @Named("userBean")
@@ -18,6 +20,9 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 	private UserManagementInterface userManagement;
 	private String searchId;
 	private String username;
+	private String role;
+	private List<Role> roles = new ArrayList<Role>();
+	private List<User> users = new ArrayList<User>();
 
 	private UserManagementInterface getUserManagement() {
 		if (userManagement == null) {
@@ -48,11 +53,25 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		return update(user);
 	}
 
+	public int addRole(Role role){
+		return getUserManagement().addRole(role);
+	}
 	public int addUser() {
 		return add(username);
 	}
 
 	public int add(String username) {
+		RoleManagedBean rmb = new RoleManagedBean();
+		int id = 0;
+		if (role.equals("admin") || role.equals("administrator")){
+			id = 1;
+		}
+		else if (role.equals("user")){
+			id = 2;
+		}
+		Role requestedRole = rmb.getById(id);
+		addRole(requestedRole);
+		rmb.update(requestedRole);
 		return getUserManagement().add(username);
 	}
 
@@ -68,6 +87,9 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		return getUserManagement().getAllUser();
 	}
 
+	public User getById(int id){
+		return getUserManagement().getById(id);
+	} 
 	public String getSearchId() {
 		return searchId;
 	}
@@ -84,4 +106,11 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		this.username = username;
 	}
 
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
 }

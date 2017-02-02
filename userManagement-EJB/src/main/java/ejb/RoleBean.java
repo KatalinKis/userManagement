@@ -1,13 +1,16 @@
 package ejb;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import common.RolesManagementInterface;
-import common.UserManagementInterface;
 import model.Role;
 import model.User;
 
@@ -16,8 +19,9 @@ public class RoleBean implements RolesManagementInterface {
 
 	@PersistenceContext(unitName = "userManagement-JPA")
 	private EntityManager entityManager;
+	private List<User> users = new ArrayList<User>();
 
-	private Role getById(int id) {
+	public Role getById(int id) {
 		return entityManager.find(Role.class, id);
 	}
 
@@ -26,7 +30,13 @@ public class RoleBean implements RolesManagementInterface {
 		Role role = new Role();
 		role.setId(nr);
 		role.setRole(user_role);
+		role.setUsers(users);
 		entityManager.persist(role);
+		return 0;
+	}
+	
+	public int addUser(User user){
+		users.add(user);
 		return 0;
 	}
 
@@ -44,5 +54,14 @@ public class RoleBean implements RolesManagementInterface {
 	public List<Role> getAllRoles() {
 		List<Role> roles = entityManager.createNamedQuery("Role.findAll").getResultList();
 		return roles;
+	}
+
+	public Role searchRole(String message) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Role> criteria = cb.createQuery(Role.class);
+		Root<Role> member = criteria.from(Role.class);
+
+//		criteria.select(member).where(cb.like(member.get("role"), "%" + message + "%"));
+		return entityManager.createQuery(criteria).getSingleResult();
 	}
 }
