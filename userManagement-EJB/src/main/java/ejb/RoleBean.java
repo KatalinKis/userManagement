@@ -30,12 +30,11 @@ public class RoleBean implements RolesManagementInterface {
 		Role role = new Role();
 		role.setId(nr);
 		role.setRole(user_role);
-		role.setUsers(users);
 		entityManager.persist(role);
 		return 0;
 	}
-	
-	public int addUser(User user){
+
+	public int addUser(User user) {
 		users.add(user);
 		return 0;
 	}
@@ -61,7 +60,8 @@ public class RoleBean implements RolesManagementInterface {
 		CriteriaQuery<Role> criteria = cb.createQuery(Role.class);
 		Root<Role> member = criteria.from(Role.class);
 
-//		criteria.select(member).where(cb.like(member.get("role"), "%" + message + "%"));
+		// criteria.select(member).where(cb.like(member.get("role"), "%" +
+		// message + "%"));
 		return entityManager.createQuery(criteria).getSingleResult();
 	}
 }

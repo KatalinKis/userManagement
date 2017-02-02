@@ -7,7 +7,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import common.RolesManagementInterface;
-import common.UserManagementInterface;
 import model.Role;
 import model.User;
 
@@ -33,30 +32,26 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 	}
 
 	public int add(String rolename) {
-		UserManagedBean umb = new UserManagedBean();
-		User requestedUser = umb.getById(Integer.parseInt(searchId));
-		addUser(requestedUser);
-		umb.update(requestedUser);
 		return getRoleManagement().add(rolename);
 	}
-	
-	public int addRole(){
+
+	public int addRole() {
 		return add(rolename);
 	}
 
-	public int remove(int id) {		
+	public int remove(int id) {
 		return getRoleManagement().remove(id);
 	}
-	
-	public int removeRole(){
+
+	public int removeRole() {
 		return remove(Integer.parseInt(searchId));
 	}
-	
-	public int update(Role role){
+
+	public int update(Role role) {
 		return getRoleManagement().update(role);
 	}
-	
-	public int updateRole(){
+
+	public int updateRole() {
 		Role role = new Role();
 		role.setId(Integer.parseInt(searchId));
 		role.setRole(rolename);
@@ -64,21 +59,21 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 	}
 
 	public List<Role> getAllRoles() {
-		return getRoleManagement().getAllRoles();	
+		return getRoleManagement().getAllRoles();
 	}
-	
-	public Role searchRole(String message){
+
+	public Role searchRole(String message) {
 		return getRoleManagement().searchRole(message);
 	}
-	
-	public Role searchRoleByName(){
+
+	public Role searchRoleByName() {
 		return searchRole(rolename);
 	}
-	
-	public List<Role> getAll(){
+
+	public List<Role> getAll() {
 		return getAllRoles();
 	}
-	
+
 	public Role getById(int id) {
 		return getRoleManagement().getById(id);
 	}
@@ -104,8 +99,5 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	
-	
-	
 
 }
