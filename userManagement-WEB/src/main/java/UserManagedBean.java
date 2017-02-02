@@ -21,8 +21,6 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 	private String searchId;
 	private String username;
 	private String role;
-	private List<Role> roles = new ArrayList<Role>();
-	private List<User> users = new ArrayList<User>();
 
 	private UserManagementInterface getUserManagement() {
 		if (userManagement == null) {
@@ -53,9 +51,10 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		return update(user);
 	}
 
-	public int addRole(Role role){
+	public int addRole(Role role) {
 		return getUserManagement().addRole(role);
 	}
+
 	public int addUser() {
 		return add(username);
 	}
@@ -63,15 +62,13 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 	public int add(String username) {
 		RoleManagedBean rmb = new RoleManagedBean();
 		int id = 0;
-		if (role.equals("admin") || role.equals("administrator")){
+		if (role.equals("admin") || role.equals("administrator")) {
 			id = 1;
-		}
-		else if (role.equals("user")){
+		} else if (role.equals("user")) {
 			id = 2;
 		}
 		Role requestedRole = rmb.getById(id);
 		addRole(requestedRole);
-		rmb.update(requestedRole);
 		return getUserManagement().add(username);
 	}
 
@@ -87,9 +84,10 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		return getUserManagement().getAllUser();
 	}
 
-	public User getById(int id){
+	public User getById(int id) {
 		return getUserManagement().getById(id);
-	} 
+	}
+
 	public String getSearchId() {
 		return searchId;
 	}

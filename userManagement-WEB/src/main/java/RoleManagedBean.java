@@ -94,10 +94,4 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 		this.rolename = rolename;
 	}
 
-	@Override
-	public int addUser(User user) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 }
