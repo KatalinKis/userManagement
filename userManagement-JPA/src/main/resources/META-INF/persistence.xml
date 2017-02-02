@@ -5,5 +5,6 @@
 	<persistence-unit name="userManagement-JPA">
 	<jta-data-source>java:jboss/datasources/UserManagementDS</jta-data-source>
 		<class>kiska.userManagement.jpa.User</class>
+		<class>kiska.userManagement.jpa.Role</class>
 	</persistence-unit>
 </persistence>

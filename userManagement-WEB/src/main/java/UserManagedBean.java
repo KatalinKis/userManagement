@@ -18,7 +18,6 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 	private UserManagementInterface userManagement;
 	private String searchId;
 	private String username;
-	
 
 	private UserManagementInterface getUserManagement() {
 		if (userManagement == null) {
@@ -38,21 +37,22 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		return getUserManagement().getAllUser();
 	}
 
-	public int removeUser(){
+	public int removeUser() {
 		return remove(Integer.parseInt(searchId));
 	}
-	
-	public int updateUser(){
+
+	public int updateUser() {
 		User user = new User();
 		user.setId(Integer.parseInt(searchId));
 		user.setUsername(username);
 		return update(user);
 	}
-	
-	public int addUser(){
+
+	public int addUser() {
 		return add(username);
 	}
-	public int add(String username) {		
+
+	public int add(String username) {
 		return getUserManagement().add(username);
 	}
 
@@ -83,7 +83,5 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-	
-	
 
 }

@@ -10,16 +10,18 @@ import common.UserManagementInterface;
 import model.IEntity;
 import model.User;
 
+
 @Stateless
 public class UserBean implements UserManagementInterface {
 
-	@PersistenceContext(unitName = "userManagement-JPA")
+	@PersistenceContext(unitName ="userManagement-JPA") 
 	private EntityManager entityManager;
+	
 
 	@SuppressWarnings("unchecked")
 	public List<User> getAllUser() {
 		List<User> users = entityManager.createNamedQuery("User.findAll").getResultList();
-		return users;
+		return users;		
 	}
 
 	public User getById(int id) {

@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2" />
+<title>roleManagement-WEB | echo_list</title>
+</head>
+<body>
+	<h3>List all roles</h3>
+	<ui:repeat value="#{roleBean.all}" var="value">
+     #{value.id}  #{value.role} <br />
+	</ui:repeat>
+	<br />
+	<h3>Delete existing role</h3>
+	<h:form>
+	Please input the id of the role! <br />
+		<h:inputText value="#{roleBean.searchId}" />
+
+		<h:commandButton value="Submit" action="#{roleBean.removeRole}" />
+	</h:form>
+	<h3>Update existing role</h3>
+	<h:form>
+	Please input the id and the new name for the role! <br />
+		<h:inputText value="#{roleBean.searchId}" />
+		<br />
+		<h:inputText value="#{roleBean.rolename}" />
+		<br />
+		<h:commandButton value="Submit" action="#{roleBean.updateRole}" />
+	</h:form>
+	<h3>Add new role</h3>
+	<h:form>
+	Please input name for the new role!
+	<br />
+		<h:inputText value="#{roleBean.rolename}" />
+		<br />
+		<h:commandButton value="Submit" action="#{roleBean.addRole}" />
+	</h:form>
+</body>
+</html>
