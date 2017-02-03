@@ -25,6 +25,10 @@
 			<groupId>kiska</groupId>
 			<artifactId>userManagement-JPA</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>kiska</groupId>
+			<artifactId>userManagement-EJB</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

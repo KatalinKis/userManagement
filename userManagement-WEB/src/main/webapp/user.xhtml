@@ -8,36 +8,73 @@
 <title>userManagement-WEB | echo_list</title>
 </head>
 <body>
-	<h3>List all users</h3>
-	<ui:repeat value="#{userBean.all}" var="value">
-     #{value.id}  #{value.username} <br />
-	</ui:repeat>
-	<br />
-	<h3>Delete existing user</h3>
-	<h:form>
-	Please input the id of the user! <br />
-		<h:inputText value="#{userBean.searchId}" />
+	<!-- 		<h:panelGrid columns="2"> -->
+	<table>
+		<tr>
+			<th width="500">List all users</th>
+			<th width="500">List all roles</th>
+		</tr>
+		<tr>
+			<td><ui:repeat value="#{userBean.all}" var="value">
+	     #{value.id}  #{value.username} <br />
+				</ui:repeat> <br /></td>
+			<td><ui:repeat value="#{roleBean.all}" var="value">
+     #{value.id}  #{value.role} <br />
+				</ui:repeat></td>
+		</tr>
+		<tr>
+			<td>
+				<h3>Add new user</h3> Please input name for the new user! <br /> <h:inputText
+					value="#{userBean.username}" /> <br /> <h:inputText
+					value="#{userBean.role}" /> <br /> <h:commandButton
+					value="Submit" action="#{userBean.addUser}" />
+			</td>
+			<td><h3>Add new role</h3> Please input name for the new role! <br />
+				<h:inputText value="#{roleBean.rolename}" /> <br /> <h:commandButton
+					value="Submit" action="#{roleBean.addRole}" /></td>
+		</tr>
 
-		<h:commandButton value="Submit" action="#{userBean.removeUser}" />
-	</h:form>
-	<h3>Update existing user</h3>
-	<h:form>
+
+		<tr>
+			<td><br />
+				<h3>Update existing user</h3> <h:form>
 	Please input the id and the new name for the user! <br />
-		<h:inputText value="#{userBean.searchId}" />
-		<br />
-		<h:inputText value="#{userBean.username}" />
-		<br />
-		<h:commandButton value="Submit" action="#{userBean.updateUser}" />
-	</h:form>
-	<h3>Add new user</h3>
-	<h:form>
-	Please input name for the new user!
-	<br />
-		<h:inputText value="#{userBean.username}" />
-		<br />
-		<h:inputText value="#{userBean.role}" />
-		<br />
-		<h:commandButton value="Submit" action="#{userBean.addUser}" />
-	</h:form>
+					<h:inputText value="#{userBean.searchId}" />
+					<br />
+					<h:inputText value="#{userBean.username}" />
+					<br />
+					<h:commandButton value="Submit" action="#{userBean.updateUser}" />
+				</h:form></td>
+			<td>
+				<h3>Update existing role</h3> <h:form>
+	Please input the id and the new name for the role! <br />
+					<h:inputText value="#{roleBean.searchId}" />
+					<br />
+					<h:inputText value="#{roleBean.rolename}" />
+					<br />
+					<h:commandButton value="Submit" action="#{roleBean.updateRole}" />
+				</h:form>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<h3>Delete existing user</h3> <h:form>
+	Please input the id of the user! <br />
+					<h:inputText value="#{userBean.searchId}" />
+
+					<h:commandButton value="Submit" action="#{userBean.removeUser}" />
+				</h:form>
+			</td>
+			<td>
+				<h3>Delete existing role</h3> <h:form>
+	Please input the id of the role! <br />
+					<h:inputText value="#{roleBean.searchId}" />
+
+					<h:commandButton value="Submit" action="#{roleBean.removeRole}" />
+				</h:form>
+			</td>
+		</tr>
+	</table>
+
 </body>
 </html>

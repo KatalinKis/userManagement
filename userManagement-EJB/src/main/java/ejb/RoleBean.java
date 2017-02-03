@@ -60,8 +60,8 @@ public class RoleBean implements RolesManagementInterface {
 		CriteriaQuery<Role> criteria = cb.createQuery(Role.class);
 		Root<Role> member = criteria.from(Role.class);
 
-		// criteria.select(member).where(cb.like(member.get("role"), "%" +
-		// message + "%"));
+//		 criteria.select(member).where(cb.like(member.get("role"), "%" +
+//		 message + "%"));
 		return entityManager.createQuery(criteria).getSingleResult();
 	}
 }

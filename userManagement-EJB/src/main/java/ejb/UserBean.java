@@ -4,56 +4,93 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import common.UserManagementInterface;
+import exception.EntityOperationException;
 import model.IEntity;
 import model.Role;
 import model.User;
 
-
 @Stateless
 public class UserBean implements UserManagementInterface {
 
-	@PersistenceContext(unitName ="userManagement-JPA") 
+	@PersistenceContext(unitName = "userManagement-JPA")
 	private EntityManager entityManager;
 	List<Role> roles = new ArrayList<Role>();
-	
 
 	@SuppressWarnings("unchecked")
-	public List<User> getAllUser() {
-		List<User> users = entityManager.createNamedQuery("User.findAll").getResultList();
-		return users;		
+	public List<User> getAllUser() throws EntityOperationException {
+		List<User> users = new ArrayList<User>();
+		try {
+			users = entityManager.createNamedQuery("User.findAll").getResultList();
+		} catch (IllegalArgumentException e) {
+			throw new EntityOperationException("Entity exception caught.", e);
+		}
+		return users;
 	}
 
-	public User getById(int id) {
-		return entityManager.find(User.class, id);
-	}
-
-	public int add(String username) {
-		int nr = ((Number) entityManager.createNamedQuery("User.countAll").getSingleResult()).intValue();
+	public User getById(int id) throws EntityOperationException {
 		User user = new User();
-		user.setId(nr);
-		user.setUsername(username);
-		user.setRoles(roles);
-		entityManager.persist(user);
-		return 0;
+		try {
+			user = entityManager.find(User.class, id);
+		} catch (IllegalArgumentException e) {
+			throw new EntityOperationException("Entity exception caught.", e);
+		}
+		return user;
 	}
 
-	public int remove(int id) {
-		User user = getById(id);
-		entityManager.remove(user);
-		return 0;
+	public int add(String username) throws EntityOperationException {
+		int flag =  -1;
+		try {
+			int nr = ((Number) entityManager.createNamedQuery("User.countAll").getSingleResult()).intValue();
+			User user = new User();
+			user.setId(nr);
+			user.setUsername(username);
+			user.setRoles(roles);
+			entityManager.persist(user);
+			flag = 0;
+		} catch (IllegalArgumentException | EntityExistsException e) {
+			throw new EntityOperationException("Entity exception caught.", e);
+		}
+		return flag;
+
 	}
 
-	public int update(User user) {
-		entityManager.merge(user);
-		return 0;
+	public int remove(int id) throws EntityOperationException {
+		int flag =  -1;
+		try {
+			User user = getById(id);
+			entityManager.remove(user);
+			flag = 0;
+		} catch (IllegalArgumentException e) {
+			throw new EntityOperationException("Entity exception caught.", e);
+		}
+		return flag;
 	}
-	
-	public int addRole(Role role){
+
+	public int update(User user) throws EntityOperationException {
+		int flag =  -1;
+		try {
+			entityManager.merge(user);
+			flag = 0;
+		} catch (
+		IllegalArgumentException e) {
+			throw new EntityOperationException("Entity exception caught.", e);
+		}
+		return flag;
+	}
+
+	public int addRole(Role role) throws EntityOperationException {
+		int flag = -1;
+		try{
 		roles.add(role);
-		return 0;
+		flag = 0;
+		}catch (Exception e) {
+			throw new EntityOperationException("Entity exception caught.", e);
+		}
+		return flag;
 	}
 }
