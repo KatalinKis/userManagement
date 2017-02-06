@@ -5,7 +5,7 @@
 	xmlns:f="http://java.sun.com/jsf/core">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2" />
-<title>userManagement-WEB | echo_list</title>
+<title>Users and roles management</title>
 </head>
 <body>
 	<!-- 		<h:panelGrid columns="2"> -->
@@ -15,17 +15,21 @@
 			<th width="500">List all roles</th>
 		</tr>
 		<tr>
-			<td><ui:repeat value="#{userBean.all}" var="value">
-	     #{value.id}  #{value.username} <br />
+			<td>Id: username - roles <br /> <ui:repeat
+					value="#{userBean.all}" var="value">
+	     #{value.id}:  #{value.username} - <ui:repeat
+						value="#{value.roles}" var="role">#{role.role}, </ui:repeat>
+					<br />
 				</ui:repeat> <br /></td>
-			<td><ui:repeat value="#{roleBean.all}" var="value">
+			<td>Id: role <br /> <ui:repeat value="#{roleBean.all}"
+					var="value">
      #{value.id}  #{value.role} <br />
 				</ui:repeat></td>
 		</tr>
 		<tr>
 			<td>
-				<h3>Add new user</h3> Please input name for the new user! <br /> <h:inputText
-					value="#{userBean.username}" /> <br /> <h:inputText
+				<h3>Add new user</h3> Please input name and role for the new user! <br />
+				<h:inputText value="#{userBean.username}" /> <br /> <h:inputText
 					value="#{userBean.role}" /> <br /> <h:commandButton
 					value="Submit" action="#{userBean.addUser}" />
 			</td>

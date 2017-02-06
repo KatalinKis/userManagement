@@ -41,6 +41,12 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.jboss.logging</groupId>
+				<artifactId>jboss-logging</artifactId>
+				<version>3.3.0.Final</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
 				<groupId>kiska</groupId>
 				<artifactId>userManagement-Common</artifactId>
 				<version>0.0.1-SNAPSHOT</version>

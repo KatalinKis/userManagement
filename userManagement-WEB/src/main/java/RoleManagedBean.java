@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -7,6 +8,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import common.RolesManagementInterface;
+import exception.EntityOperationException;
+import exception.ManagedBeanException;
 import model.Role;
 import model.User;
 
@@ -16,6 +19,9 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 	private RolesManagementInterface roleManagement;
 	private String searchId;
 	private String rolename;
+	private boolean exception;
+	private final String internalError = "Internal error!";
+	List<Role> roles = new ArrayList<Role>();
 
 	private RolesManagementInterface getRoleManagement() {
 		if (roleManagement == null) {
@@ -24,58 +30,133 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 				roleManagement = (RolesManagementInterface) jndi.lookup(
 						"java:global/userManagement-EAR-0.0.1-SNAPSHOT/userManagement-EJB-0.0.1-SNAPSHOT/RoleBean");
 			} catch (NamingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				ErrorManagedBean.getErrorBean().getErrorBean().setErrorMessage(internalError);
 			}
 		}
 		return roleManagement;
 	}
 
-	public int add(String rolename) {
-		return getRoleManagement().add(rolename);
+	private boolean checkInputField(String inputField) throws ManagedBeanException {
+		boolean ok = true;
+		if (inputField.length() == 0) {
+			ok = false;
+			throw new ManagedBeanException("Input field can't be empty!");
+		}
+		return ok;
 	}
 
-	public int addRole() {
-		return add(rolename);
+	public int add(String rolename) throws ManagedBeanException {
+		try {
+			getRoleManagement().add(rolename);
+		} catch (EntityOperationException e) {
+			throw new ManagedBeanException("Couldn't add role. Possibly the role already exists.", e);
+		}
+		return 0;
 	}
 
-	public int remove(int id) {
-		return getRoleManagement().remove(id);
+	public int addRole() throws ManagedBeanException {
+		try {
+			if (checkInputField(rolename)) {
+				add(rolename);
+			}
+		} catch (ManagedBeanException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+			throw new ManagedBeanException("Internal error!", e);
+		}
+		return 0;
 	}
 
-	public int removeRole() {
-		return remove(Integer.parseInt(searchId));
+	public int remove(int id) throws ManagedBeanException {
+		try {
+			getRoleManagement().remove(id);
+		} catch (EntityOperationException e) {
+			throw new ManagedBeanException("Couldn't remove role. Possibly the specified role does not exist.", e);
+		} catch (ManagedBeanException e) {
+			throw new ManagedBeanException(e.getMessage());
+		}
+		return 0;
 	}
 
-	public int update(Role role) {
-		return getRoleManagement().update(role);
+	public int removeRole() throws ManagedBeanException {
+		try {
+			if (checkInputField(searchId)) {
+				remove(Integer.parseInt(searchId));
+			}
+		} catch (NumberFormatException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage("User id must be a number!");
+			// e.printStackTrace();
+			throw new ManagedBeanException(internalError);
+		} catch (ManagedBeanException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+			throw new ManagedBeanException(internalError);
+		}
+		return 0;
 	}
 
-	public int updateRole() {
+	public int update(Role role) throws ManagedBeanException {
+		try {
+			getRoleManagement().update(role);
+		} catch (EntityOperationException e) {
+			throw new ManagedBeanException("Couldn't update user!", e);
+		}
+		return 0;
+	}
+
+	public int updateRole() throws ManagedBeanException {
 		Role role = new Role();
-		role.setId(Integer.parseInt(searchId));
-		role.setRole(rolename);
-		return update(role);
+		try {
+			if (checkInputField(searchId) && checkInputField(rolename)) {
+				role.setId(Integer.parseInt(searchId));
+				role.setRole(rolename);
+				update(role);
+			}
+		} catch (NumberFormatException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+			throw new ManagedBeanException(internalError);
+		} catch (ManagedBeanException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+			throw new ManagedBeanException(internalError);
+		}
+		return 0;
 	}
 
-	public List<Role> getAllRoles() {
-		return getRoleManagement().getAllRoles();
+	public List<Role> getAllRoles() throws ManagedBeanException {
+		try {
+			roles = getRoleManagement().getAllRoles();
+		} catch (EntityOperationException e) {
+			throw new ManagedBeanException("There are no users!", e);
+		}
+		return roles;
 	}
 
-	public Role searchRole(String message) {
+	public Role searchRole(String message) throws ManagedBeanException {
 		return getRoleManagement().searchRole(message);
 	}
 
-	public Role searchRoleByName() {
+	public Role searchRoleByName() throws ManagedBeanException {
 		return searchRole(rolename);
 	}
 
-	public List<Role> getAll() {
-		return getAllRoles();
+	public List<Role> getAll() throws ManagedBeanException {
+		try {
+			roles = getRoleManagement().getAllRoles();
+		} catch (EntityOperationException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+		} catch (ManagedBeanException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+			throw new ManagedBeanException(internalError);
+		}
+		return roles;
 	}
 
-	public Role getById(int id) {
-		return getRoleManagement().getById(id);
+	public Role getById(int id) throws ManagedBeanException {
+		Role role = new Role();
+		try {
+			role = getRoleManagement().getById(id);
+		} catch (EntityOperationException e) {
+			throw new ManagedBeanException("No user with given id!", e);
+		}
+		return role;
 	}
 
 	public String getSearchId() {
@@ -92,6 +173,14 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 
 	public void setRolename(String rolename) {
 		this.rolename = rolename;
+	}
+
+	public boolean isException() {
+		return exception;
+	}
+
+	public void setException(boolean exception) {
+		this.exception = exception;
 	}
 
 }

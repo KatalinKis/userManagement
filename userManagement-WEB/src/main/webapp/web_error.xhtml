@@ -5,15 +5,14 @@
 	xmlns:f="http://java.sun.com/jsf/core">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2" />
-<title>Login</title>
+<title>Error</title>
 </head>
 <body>
+	
 	<h:form>
-	Please input the username! <br />
-		<h:inputText value="#{loginBean.username}" />		
-		<h:commandButton value="Submit"
-			actionListener="#{loginBean.login}"
-			action="userManagement?faces-redirect=true" /> 
+		<h:outputText value="#{errorBean.getErrorBean().getErrorMessage()}" />
+		<br/>
+		<h:commandButton value="Back" action="userManagement?faces-redirect=true" />
 	</h:form>
 </body>
 </html>

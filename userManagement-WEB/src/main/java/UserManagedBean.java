@@ -2,6 +2,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.naming.InitialContext;
@@ -10,9 +11,11 @@ import javax.swing.text.html.parser.Entity;
 
 import common.UserManagementInterface;
 import exception.EntityOperationException;
+import exception.ManagedBeanException;
 import model.IEntity;
 import model.Role;
 import model.User;
+import org.jboss.logging.Logger;
 
 @Named("userBean")
 @ApplicationScoped
@@ -25,6 +28,8 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 	private String role;
 	private String addSuccess;
 	private boolean exception;
+	private final String internalError = "Internal error!";
+	private Logger oLogger = Logger.getLogger(UserManagedBean.class);
 
 	private UserManagementInterface getUserManagement() {
 		if (userManagement == null) {
@@ -33,102 +38,158 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 				userManagement = (UserManagementInterface) jndi.lookup(
 						"java:global/userManagement-EAR-0.0.1-SNAPSHOT/userManagement-EJB-0.0.1-SNAPSHOT/UserBean");
 			} catch (NamingException e) {
-				exception = true;
-				// e.printStackTrace();
+				ErrorManagedBean.getErrorBean().getErrorBean().setErrorMessage(internalError);
+				oLogger.error(e);
 			}
 		}
 		return userManagement;
 	}
 
-	public List<?> getAll() {
-		List<User> users = new ArrayList<>();
+	private boolean checkInputField(String inputField) throws ManagedBeanException {
+		boolean ok = true;
+		if (inputField.length() == 0) {
+			ok = false;
+			throw new ManagedBeanException("Input field can't be empty!");
+		}
+		return ok;
+	}
+
+	public List<?> getAll() throws ManagedBeanException {
+		List<User> users = new ArrayList<User>();
 		try {
 			users = getUserManagement().getAllUser();
 		} catch (EntityOperationException e) {
-			exception = true;
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+		} catch (ManagedBeanException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+			throw new ManagedBeanException(internalError);
 		}
 		return users;
 	}
 
-	public int removeUser() {
-		return remove(Integer.parseInt(searchId));
-	}
-
-	public int updateUser() {
-		User user = new User();
-		user.setId(Integer.parseInt(searchId));
-		user.setUsername(username);
-		return update(user);
-	}
-
-	public int addRole(Role role) {
+	public int removeUser() throws ManagedBeanException {
 		try {
-			getUserManagement().addRole(role);
-		} catch (EntityOperationException e) {
-			exception = true;
+			if (checkInputField(searchId)) {
+				remove(Integer.parseInt(searchId));
+			}
+		} catch (NumberFormatException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage("User id must be a number!");
+			e.printStackTrace();
+		} catch (ManagedBeanException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+			throw new ManagedBeanException(internalError);
 		}
 		return 0;
 	}
 
-	public int addUser() {
-		return add(username);
+	public int updateUser() throws ManagedBeanException {
+		User user = new User();
+		try {
+			if (checkInputField(searchId) && checkInputField(username)) {
+				user.setId(Integer.parseInt(searchId));
+				user.setUsername(username);
+				try {
+					update(user);
+				} catch (ManagedBeanException e) {
+					ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+					throw new ManagedBeanException(internalError);
+				} catch (Exception e) {
+					ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+					throw new ManagedBeanException(internalError);
+				}
+			}
+		} catch (ManagedBeanException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+			throw new ManagedBeanException(internalError);
+		} catch (NumberFormatException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage("Id must be a number!");
+			throw new ManagedBeanException(internalError);
+		}
+		return 0;
 	}
 
-	public int add(String username) {
+	public int addRole(Role role) throws ManagedBeanException {
+		try {
+			getUserManagement().addRole(role);
+		} catch (EntityOperationException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+			throw new ManagedBeanException(internalError);
+		}
+		return 0;
+	}
+
+	public int addUser() throws ManagedBeanException {
+		try {
+			if (checkInputField(username) && checkInputField(role)) {
+				add(username);
+			}
+		} catch (ManagedBeanException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+			throw new ManagedBeanException(internalError);
+		}
+		return 0;
+	}
+
+	public int add(String username) throws ManagedBeanException {
 		RoleManagedBean rmb = new RoleManagedBean();
 		List<Role> roles = rmb.getAllRoles();
 		Role requestedRole = null;
 		for (int i = 0; i < roles.size(); ++i) {
 			if (roles.get(i).getRole().equals(role)) {
 				requestedRole = roles.get(i);
-				setAddSuccess("User added successfully!");
 			} else {
-				setAddSuccess("Couldn't add user!");
+				throw new ManagedBeanException("The specified role does not exist!");
 			}
 		}
 		addRole(requestedRole);
 		try {
 			getUserManagement().add(username);
 		} catch (EntityOperationException e) {
-			exception = true;
+			throw new ManagedBeanException("Unable to add user!", e);
 		}
 		return 0;
 	}
 
-	public int remove(int id) {
+	public int remove(int id) throws ManagedBeanException {
 		try {
 			getUserManagement().remove(id);
 		} catch (EntityOperationException e) {
-			exception = true;
+			throw new ManagedBeanException(internalError, e);
 		}
 		return 0;
 	}
 
-	public int update(User user) {
-		try {
-			getUserManagement().update(user);
-		} catch (EntityOperationException e) {
-			exception = true;
+	public int update(User user) throws ManagedBeanException {
+		for (int i = 0; i < getAllUser().size(); ++i) {
+			if (user.getId() == getAllUser().get(i).getId()) {
+				try {
+					getUserManagement().update(user);
+				} catch (EntityOperationException e) {
+					throw new ManagedBeanException("Couldn't update user!", e);
+				}
+			} else {
+				throw new ManagedBeanException("The specified user doesn't exist!");
+			}
 		}
 		return 0;
 	}
 
-	public List<User> getAllUser() {
-		List<User> users = new ArrayList<>();
+	public List<User> getAllUser() throws ManagedBeanException {
+		List<User> users = new ArrayList<User>();
 		try {
 			users = getUserManagement().getAllUser();
 		} catch (EntityOperationException e) {
-			exception = true;
+			throw new ManagedBeanException("There are no users!", e);
 		}
 		return users;
 	}
 
-	public User getById(int id) {
+	public User getById(int id) throws ManagedBeanException {
 		User user = new User();
 		try {
 			user = getUserManagement().getById(id);
 		} catch (EntityOperationException e) {
-			exception = true;
+			throw new ManagedBeanException("No user with given id!", e);
 		}
 		return user;
 	}
@@ -164,4 +225,13 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 	public void setAddSuccess(String addSuccess) {
 		this.addSuccess = addSuccess;
 	}
+
+	public boolean isException() {
+		return exception;
+	}
+
+	public void setException(boolean exception) {
+		this.exception = exception;
+	}
+
 }
