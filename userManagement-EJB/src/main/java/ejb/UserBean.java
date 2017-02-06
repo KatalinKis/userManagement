@@ -85,6 +85,7 @@ public class UserBean implements UserManagementInterface {
 	public int update(User user) throws EntityOperationException {
 		int flag = -1;
 		try {
+			user.setRoles(roles);
 			entityManager.merge(user);
 			flag = 0;
 		} catch (IllegalArgumentException e) {
@@ -98,6 +99,9 @@ public class UserBean implements UserManagementInterface {
 		int flag = -1;
 		try {
 			roles.add(role);
+			for(int i = 0; i < roles.size(); ++i){
+				oLogger.info(roles.get(i).getRole());
+			}
 			flag = 0;
 		} catch (Exception e) {
 			oLogger.error(e);

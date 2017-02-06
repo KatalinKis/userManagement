@@ -42,10 +42,12 @@
 		<tr>
 			<td><br />
 				<h3>Update existing user</h3> <h:form>
-	Please input the id and the new name for the user! <br />
+	Please input the id and the new name and role for the user! <br />
 					<h:inputText value="#{userBean.searchId}" />
 					<br />
 					<h:inputText value="#{userBean.username}" />
+					<br />
+					<h:inputText value="#{userBean.role}" />
 					<br />
 					<h:commandButton value="Submit" action="#{userBean.updateUser}" />
 				</h:form></td>

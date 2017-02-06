@@ -2,20 +2,18 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.swing.text.html.parser.Entity;
+
+import org.jboss.logging.Logger;
 
 import common.UserManagementInterface;
 import exception.EntityOperationException;
 import exception.ManagedBeanException;
-import model.IEntity;
 import model.Role;
 import model.User;
-import org.jboss.logging.Logger;
 
 @Named("userBean")
 @ApplicationScoped
@@ -85,15 +83,37 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 	public int updateUser() throws ManagedBeanException {
 		User user = new User();
 		try {
-			if (checkInputField(searchId) && checkInputField(username)) {
+			if (checkInputField(searchId)) {
 				user.setId(Integer.parseInt(searchId));
+			}
+			if (checkInputField(username)) {
 				user.setUsername(username);
+			}
+			if (checkInputField(role)) {
 				try {
-					update(user);
+					oLogger.info("/////********----- checkInput role ok," + user.getId());
+					User userToUpdate = getUserManagement().getById(user.getId());
+					oLogger.info("userToUpdate: " + userToUpdate.getId());
+
+					oLogger.info((userToUpdate.getRoles().contains(role) ? "van ilzen role" : " nincs ilzen role"));
+
+					if (userToUpdate.getRoles().contains(role)) {
+						oLogger.info("got role" + role);
+						ErrorManagedBean.getErrorBean().setErrorMessage("User already has specified role.");
+						throw new ManagedBeanException("User already has specified role.");
+					} else {
+						Role requestedRole = getRole(role);
+						oLogger.info("got req role " + requestedRole.getRole());
+						addRole(requestedRole);
+						oLogger.info("after added got req role " + requestedRole.getRole());
+						update(user);
+					}
 				} catch (ManagedBeanException e) {
+					oLogger.info("catch managed exception");
 					ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 					throw new ManagedBeanException(internalError);
 				} catch (Exception e) {
+					oLogger.info("catch exception");
 					ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 					throw new ManagedBeanException(internalError);
 				}
@@ -110,6 +130,7 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 
 	public int addRole(Role role) throws ManagedBeanException {
 		try {
+			oLogger.info(role.getRole());
 			getUserManagement().addRole(role);
 		} catch (EntityOperationException e) {
 			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
@@ -131,16 +152,7 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 	}
 
 	public int add(String username) throws ManagedBeanException {
-		RoleManagedBean rmb = new RoleManagedBean();
-		List<Role> roles = rmb.getAllRoles();
-		Role requestedRole = null;
-		for (int i = 0; i < roles.size(); ++i) {
-			if (roles.get(i).getRole().equals(role)) {
-				requestedRole = roles.get(i);
-			} else {
-				throw new ManagedBeanException("The specified role does not exist!");
-			}
-		}
+		Role requestedRole = getRole(role);
 		addRole(requestedRole);
 		try {
 			getUserManagement().add(username);
@@ -160,17 +172,24 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 	}
 
 	public int update(User user) throws ManagedBeanException {
+		boolean updated = false;
 		for (int i = 0; i < getAllUser().size(); ++i) {
+			oLogger.info(user.getId() == getAllUser().get(i).getId());
 			if (user.getId() == getAllUser().get(i).getId()) {
 				try {
+					oLogger.info("inside update" + user.getUsername());
 					getUserManagement().update(user);
+					oLogger.info("after update user");
+					updated = true;
 				} catch (EntityOperationException e) {
-					throw new ManagedBeanException("Couldn't update user!", e);
+					oLogger.error("Couldn't update user!");
 				}
-			} else {
-				throw new ManagedBeanException("The specified user doesn't exist!");
-			}
+			
+			}			
 		}
+		 if(!updated){
+				throw new ManagedBeanException("Specified user doesn't exist!");
+			}
 		return 0;
 	}
 
@@ -234,4 +253,23 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		this.exception = exception;
 	}
 
+	private Role getRole(String role) throws ManagedBeanException {
+		RoleManagedBean rmb = new RoleManagedBean();
+		List<Role> roles = rmb.getAllRoles();
+		oLogger.info(roles);
+		Role requestedRole = null;
+		boolean found = false;
+		for (int i = 0; i < roles.size(); ++i) {
+			oLogger.info("-*********" + roles.get(i).getRole() + " " + role);
+			if (roles.get(i).getRole().equals(role)) {
+				found = true;
+				requestedRole = roles.get(i);
+				oLogger.info(requestedRole);
+			}
+		}
+		if (!found) {
+			throw new ManagedBeanException("The specified role does not exist!");
+		}
+		return requestedRole;
+	}
 }
