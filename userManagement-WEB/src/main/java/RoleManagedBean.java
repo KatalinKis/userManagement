@@ -67,6 +67,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 			throw new ManagedBeanException("Internal error!", e);
 		}
+		clearInputFields();
 		return 0;
 	}
 
@@ -74,9 +75,15 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 		try {
 			getRoleManagement().remove(id);
 		} catch (EntityOperationException e) {
-			throw new ManagedBeanException("Couldn't remove role. Possibly the specified role does not exist.", e);
+			throw new ManagedBeanException(
+					"Couldn't remove role. Possibly the specified role does not exist or is bound to one or more user.",
+					e);
 		} catch (ManagedBeanException e) {
-			throw new ManagedBeanException(e.getMessage());
+			throw new ManagedBeanException(
+					"Couldn't remove role. Possibly the specified role does not exist or is bound to one or more user.");
+		} catch (Exception e) {
+			throw new ManagedBeanException(
+					"Couldn't remove role. Possibly the specified role does not exist or is bound to one or more user.");
 		}
 		return 0;
 	}
@@ -95,6 +102,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 			throw new ManagedBeanException(internalError);
 		}
+		clearInputFields();
 		return 0;
 	}
 
@@ -124,6 +132,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 			throw new ManagedBeanException(internalError);
 		}
+		clearInputFields();
 		return 0;
 	}
 
@@ -146,15 +155,13 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 
 	public List<Role> getAll() throws ManagedBeanException {
 		try {
-			roles = getRoleManagement().getAllRoles();
-		} catch (EntityOperationException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+			roles = getAllRoles();
 		} catch (ManagedBeanException e) {
 			oLogger.error(e);
 			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 			throw new ManagedBeanException(internalError);
 		}
+		clearInputFields();
 		return roles;
 	}
 
@@ -190,6 +197,11 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 
 	public void setException(boolean exception) {
 		this.exception = exception;
+	}
+
+	private void clearInputFields() {
+		searchId = "";
+		rolename = "";
 	}
 
 }

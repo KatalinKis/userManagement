@@ -64,6 +64,7 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 			throw new ManagedBeanException(internalError);
 		}
+		clearInputFields();
 		return users;
 	}
 
@@ -80,35 +81,36 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 			throw new ManagedBeanException(internalError);
 		}
+		clearInputFields();
 		return 0;
 	}
 
 	public int updateUser() throws ManagedBeanException {
-		User user = new User();
+		User userToUpdate = new User();
 		try {
 			if (checkInputField(searchId)) {
-				user.setId(Integer.parseInt(searchId));
+				userToUpdate = getUserManagement().getById(Integer.parseInt(searchId));
 			}
 			if (checkInputField(username)) {
-				user.setUsername(username);
+				userToUpdate.setUsername(username);
 			}
-			if (checkInputField(role)) {
-				try {
-					User userToUpdate = getUserManagement().getById(user.getId());
+			try {
+				if (checkInputField(role)) {
 					if (!userToUpdate.getRoles().contains(role)) {
 						Role requestedRole = getRole(role);
-						addRole(requestedRole);
-						update(user);
+						addRoleUpdate(requestedRole, userToUpdate);
 					}
-				} catch (ManagedBeanException e) {
-					oLogger.error(e);
-					ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-					throw new ManagedBeanException(internalError);
-				} catch (Exception e) {
-					oLogger.error(e);
-					ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-					throw new ManagedBeanException(internalError);
 				}
+				update(userToUpdate);
+			} catch (ManagedBeanException e) {
+				oLogger.error(e);
+				ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+				throw new ManagedBeanException(internalError);
+			} catch (Exception e) {
+				oLogger.error(e);
+				ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+				throw new ManagedBeanException(internalError);
+
 			}
 		} catch (ManagedBeanException e) {
 			oLogger.error(e);
@@ -117,6 +119,25 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		} catch (NumberFormatException e) {
 			oLogger.error(e);
 			ErrorManagedBean.getErrorBean().setErrorMessage("Id must be a number!");
+			throw new ManagedBeanException(internalError);
+		} catch (EntityOperationException e) {
+			oLogger.error(e);
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+			throw new ManagedBeanException(internalError);
+		}
+		clearInputFields();
+		return 0;
+	}
+
+	public int addRoleUpdate(Role requestedRole, User userToUpdate) throws ManagedBeanException {
+		try {
+			getUserManagement().addRoleUpdate(requestedRole, userToUpdate);
+		} catch (EntityOperationException e) {
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+			throw new ManagedBeanException(internalError);
+		} catch (ManagedBeanException e) {
+			oLogger.error(e);
+			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 			throw new ManagedBeanException(internalError);
 		}
 		return 0;
@@ -142,12 +163,12 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 			throw new ManagedBeanException(internalError);
 		}
+		clearInputFields();
 		return 0;
 	}
 
 	public int add(String username) throws ManagedBeanException {
 		Role requestedRole = getRole(role);
-		oLogger.info("req role: " + requestedRole + " " + role);
 		addRole(requestedRole);
 		try {
 			getUserManagement().add(username);
@@ -261,5 +282,11 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 			throw new ManagedBeanException("The specified role does not exist!");
 		}
 		return requestedRole;
+	}
+
+	private void clearInputFields() {
+		searchId = "";
+		username = "";
+		role = "";
 	}
 }

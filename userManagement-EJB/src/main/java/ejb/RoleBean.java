@@ -3,10 +3,12 @@ package ejb;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ejb.EJBTransactionRolledbackException;
 import javax.ejb.Stateless;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -87,6 +89,7 @@ public class RoleBean implements RolesManagementInterface {
 			oLogger.error(e);
 			throw new EntityOperationException("Entity exception caught.", e);
 		}
+
 		return flag;
 	}
 

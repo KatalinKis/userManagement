@@ -22,7 +22,7 @@ public class UserBean implements UserManagementInterface {
 	@PersistenceContext(unitName = "userManagement-JPA")
 	private EntityManager entityManager;
 	List<Role> roles = new ArrayList<Role>();
-	private Logger oLogger = Logger.getLogger(RoleBean.class);
+	private Logger oLogger = Logger.getLogger(UserBean.class);
 
 	@SuppressWarnings("unchecked")
 	public List<User> getAllUser() throws EntityOperationException {
@@ -56,6 +56,8 @@ public class UserBean implements UserManagementInterface {
 			user.setUsername(username);
 			user.setRoles(roles);
 			entityManager.persist(user);
+			entityManager.flush();
+			entityManager.clear();
 			flag = 0;
 		} catch (IllegalArgumentException e) {
 			oLogger.error(e);
@@ -84,13 +86,23 @@ public class UserBean implements UserManagementInterface {
 
 	public int update(User user) throws EntityOperationException {
 		int flag = -1;
+		oLogger.info("==========================" + user.getUsername() + " " + user.getRoles().toString());
 		try {
-			user.setRoles(roles);
-			entityManager.merge(user);
-			flag = 0;
+			// user.setRoles(user.getRoles());
+
+			if (!user.getRoles().isEmpty()) {
+				oLogger.info("inside update: " + user.getRoles());
+
+				entityManager.merge(user);
+				flag = 0;
+			}
 		} catch (IllegalArgumentException e) {
 			oLogger.error(e);
 			throw new EntityOperationException("Entity exception caught.", e);
+		} catch (Exception e) {
+			oLogger.error(
+					"*******////------------------Update all excepetion -----------///////*********************************");
+			oLogger.error(e);
 		}
 		return flag;
 	}
@@ -98,7 +110,25 @@ public class UserBean implements UserManagementInterface {
 	public int addRole(Role role) throws EntityOperationException {
 		int flag = -1;
 		try {
+			roles = new ArrayList<Role>();
 			roles.add(role);
+			flag = 0;
+		} catch (Exception e) {
+			oLogger.error(e);
+			throw new EntityOperationException("Entity exception caught.", e);
+		}
+		return flag;
+	}
+
+	public int addRoleUpdate(Role role, User user) throws EntityOperationException {
+		int flag = -1;
+		try {
+			oLogger.info("before role add " + role.getRole());
+			List<Role> newRoles = user.getRoles();
+			oLogger.info(newRoles.toString());
+			newRoles.add(role);
+			user.setRoles(newRoles);
+			oLogger.info("get roles" + user.getRoles().toString());
 			flag = 0;
 		} catch (Exception e) {
 			oLogger.error(e);
