@@ -15,27 +15,47 @@
 			<th width="500">List all roles</th>
 		</tr>
 		<tr>
-			<td>Id: username - roles <br /> <ui:repeat
-					value="#{userBean.all}" var="value">
-	     #{value.id}:  #{value.username} - <ui:repeat
+			<td><h:outputText value="Id: user name - roles"
+					style="font-weight:bold" /> <br /> <br /> <ui:repeat
+					value="#{userBean.all.subList(0, userBean.all.size() - 1)}"
+					var="value">
+	     #{value.id}:  #{value.username} -   <ui:repeat
 						value="#{value.roles}" var="role">#{role.role}, </ui:repeat>
 					<br />
-				</ui:repeat> <br /></td>
-			<td>Id: role <br /> <ui:repeat value="#{roleBean.all}"
+				</ui:repeat> <ui:repeat
+					value="#{userBean.all.subList(userBean.all.size() - 1, userBean.all.size())}"
 					var="value">
-     #{value.id}  #{value.role} <br />
+	     #{value.id}:  #{value.username} -  
+				 <ui:repeat
+						value="#{value.roles.subList(0, value.roles.size() - 1)}"
+						var="role">#{role.role}, </ui:repeat>
+					<ui:repeat
+						value="#{value.roles.subList(value.roles.size() - 1, value.roles.size())}"
+						var="role">#{role.role}</ui:repeat>
+					<br />
 				</ui:repeat></td>
+			<td><h:outputText value="Id: role" style="font-weight:bold" /><br />
+				<ui:repeat value="#{roleBean.all}" var="value">
+     #{value.id}:  #{value.role} <br />
+				</ui:repeat> <br /></td>
 		</tr>
 		<tr>
 			<td>
 				<h3>Add new user</h3> Please input name and role for the new user! <br />
-				<h:inputText value="#{userBean.username}" /> <br /> <h:inputText
-					value="#{userBean.role}" /> <br /> <h:commandButton
-					value="Submit" action="#{userBean.addUser}" />
+				<h:form>
+					<h:inputText value="#{userBean.username}" />
+					<br />
+					<h:inputText value="#{userBean.role}" />
+					<br />
+					<h:commandButton value="Submit" action="#{userBean.addUser}" />
+				</h:form>
 			</td>
 			<td><h3>Add new role</h3> Please input name for the new role! <br />
-				<h:inputText value="#{roleBean.rolename}" /> <br /> <h:commandButton
-					value="Submit" action="#{roleBean.addRole}" /></td>
+				<h:form>
+					<h:inputText value="#{roleBean.rolename}" />
+					<br />
+					<h:commandButton value="Submit" action="#{roleBean.addRole}" />
+				</h:form></td>
 		</tr>
 
 

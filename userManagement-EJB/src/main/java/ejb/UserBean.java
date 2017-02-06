@@ -99,9 +99,6 @@ public class UserBean implements UserManagementInterface {
 		int flag = -1;
 		try {
 			roles.add(role);
-			for(int i = 0; i < roles.size(); ++i){
-				oLogger.info(roles.get(i).getRole());
-			}
 			flag = 0;
 		} catch (Exception e) {
 			oLogger.error(e);

@@ -7,6 +7,8 @@ import javax.inject.Named;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.jboss.logging.Logger;
+
 import common.RolesManagementInterface;
 import exception.EntityOperationException;
 import exception.ManagedBeanException;
@@ -22,6 +24,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 	private boolean exception;
 	private final String internalError = "Internal error!";
 	List<Role> roles = new ArrayList<Role>();
+	private Logger oLogger = Logger.getLogger(UserManagedBean.class);
 
 	private RolesManagementInterface getRoleManagement() {
 		if (roleManagement == null) {
@@ -30,7 +33,8 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 				roleManagement = (RolesManagementInterface) jndi.lookup(
 						"java:global/userManagement-EAR-0.0.1-SNAPSHOT/userManagement-EJB-0.0.1-SNAPSHOT/RoleBean");
 			} catch (NamingException e) {
-				ErrorManagedBean.getErrorBean().getErrorBean().setErrorMessage(internalError);
+				ErrorManagedBean.getErrorBean().setErrorMessage(internalError);
+				oLogger.error(e);
 			}
 		}
 		return roleManagement;
@@ -83,10 +87,11 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 				remove(Integer.parseInt(searchId));
 			}
 		} catch (NumberFormatException e) {
+			oLogger.error(e);
 			ErrorManagedBean.getErrorBean().setErrorMessage("User id must be a number!");
-			// e.printStackTrace();
 			throw new ManagedBeanException(internalError);
 		} catch (ManagedBeanException e) {
+			oLogger.error(e);
 			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 			throw new ManagedBeanException(internalError);
 		}
@@ -111,9 +116,11 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 				update(role);
 			}
 		} catch (NumberFormatException e) {
+			oLogger.error(e);
 			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 			throw new ManagedBeanException(internalError);
 		} catch (ManagedBeanException e) {
+			oLogger.error(e);
 			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 			throw new ManagedBeanException(internalError);
 		}
@@ -141,8 +148,10 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 		try {
 			roles = getRoleManagement().getAllRoles();
 		} catch (EntityOperationException e) {
+			oLogger.error(e);
 			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 		} catch (ManagedBeanException e) {
+			oLogger.error(e);
 			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
 			throw new ManagedBeanException(internalError);
 		}
