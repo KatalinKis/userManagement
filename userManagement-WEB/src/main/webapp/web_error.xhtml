@@ -8,11 +8,11 @@
 <title>Error</title>
 </head>
 <body>
-	
+
 	<h:form>
 		<h:outputText value="#{errorBean.getErrorBean().getErrorMessage()}" />
-		<br/>
-		<h:commandButton value="Back" action="userManagement?faces-redirect=true" />
+		<br />
+		<input value="Back" type="button" onclick="history.go(-1)" />
 	</h:form>
 </body>
 </html>

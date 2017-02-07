@@ -11,11 +11,6 @@
 	<name>userManagement-WEB</name>
 	<dependencies>
 		<dependency>
-			<groupId>kiska</groupId>
-			<artifactId>userManagement-Common</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>javax.inject</groupId>
 			<artifactId>javax.inject</artifactId>
 		</dependency>
@@ -30,6 +25,11 @@
 		<dependency>
 			<groupId>javax.enterprise</groupId>
 			<artifactId>cdi-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>kiska</groupId>
+			<artifactId>userManagement-Common</artifactId>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

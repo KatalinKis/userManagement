@@ -1,3 +1,5 @@
+package managedBeans;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,7 @@ import exception.EntityOperationException;
 import exception.ManagedBeanException;
 import model.Role;
 import model.User;
+import util.Commons;
 
 @Named("userBean")
 @ApplicationScoped

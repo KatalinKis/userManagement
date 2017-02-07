@@ -1,3 +1,5 @@
+package managedBeans;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 

@@ -29,14 +29,13 @@
 		</dependency>
 		<dependency>
 			<groupId>kiska</groupId>
-			<artifactId>userManagement-WEB</artifactId>
+			<artifactId>userManagement-Common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<type>war</type>
 		</dependency>
 		<dependency>
 			<groupId>kiska</groupId>
-			<artifactId>userManagement-Common</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>userManagement-WEB</artifactId>
+			<type>war</type>
 		</dependency>
 	</dependencies>
 	<build>

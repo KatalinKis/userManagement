@@ -1,3 +1,5 @@
+package managedBeans;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +15,7 @@ import common.RolesManagementInterface;
 import exception.EntityOperationException;
 import exception.ManagedBeanException;
 import model.Role;
+import util.Commons;
 
 @Named("roleBean")
 @ApplicationScoped
@@ -25,7 +28,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 	private boolean exception;
 	private final String internalError = "Internal error!";
 	List<Role> roles = new ArrayList<Role>();
-	private Logger oLogger = Logger.getLogger(UserManagedBean.class);
+	private Logger oLogger = Logger.getLogger(RoleManagedBean.class);
 
 	private RolesManagementInterface getRoleManagement() {
 		if (roleManagement == null) {
@@ -41,15 +44,6 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 		return roleManagement;
 	}
 
-	private boolean checkInputField(String inputField) throws ManagedBeanException {
-		boolean ok = true;
-		if (inputField.length() == 0) {
-			ok = false;
-			Commons.getInstance().throwException(Commons.getInstance().EMPTY_FIELD);
-		}
-		return ok;
-	}
-
 	public int add(String rolename) throws ManagedBeanException {
 		try {
 			getRoleManagement().add(rolename);
@@ -61,7 +55,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 
 	public int addRole() throws ManagedBeanException {
 		try {
-			if (checkInputField(rolename)) {
+			if (Commons.getInstance().checkInputField(rolename)) {
 				add(rolename);
 			}
 		} catch (ManagedBeanException e) {
@@ -86,7 +80,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 
 	public int removeRole() throws ManagedBeanException {
 		try {
-			if (checkInputField(searchId)) {
+			if (Commons.getInstance().checkInputField(searchId)) {
 				remove(Integer.parseInt(searchId));
 			}
 		} catch (NumberFormatException e) {
@@ -110,7 +104,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 	public int updateRole() throws ManagedBeanException {
 		Role role = new Role();
 		try {
-			if (checkInputField(searchId) && checkInputField(rolename)) {
+			if (Commons.getInstance().checkInputField(searchId) && Commons.getInstance().checkInputField(rolename)) {
 				role.setId(Integer.parseInt(searchId));
 				role.setRole(rolename);
 				update(role);

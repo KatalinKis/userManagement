@@ -3,12 +3,10 @@ package ejb;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ejb.EJBTransactionRolledbackException;
 import javax.ejb.Stateless;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -19,6 +17,7 @@ import common.RolesManagementInterface;
 import exception.EntityOperationException;
 import model.Role;
 import model.User;
+import util.EjbCommons;
 
 @Stateless
 public class RoleBean implements RolesManagementInterface {
@@ -33,8 +32,7 @@ public class RoleBean implements RolesManagementInterface {
 		try {
 			role = entityManager.find(Role.class, id);
 		} catch (IllegalArgumentException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		}
 		return role;
 	}
@@ -49,12 +47,9 @@ public class RoleBean implements RolesManagementInterface {
 			entityManager.persist(role);
 			flag = 0;
 		} catch (IllegalArgumentException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
-
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		} catch (EntityExistsException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		}
 		return flag;
 	}
@@ -65,12 +60,9 @@ public class RoleBean implements RolesManagementInterface {
 			users.add(user);
 			flag = 0;
 		} catch (IllegalArgumentException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
-
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		} catch (EntityExistsException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		}
 		return flag;
 	}
@@ -83,11 +75,9 @@ public class RoleBean implements RolesManagementInterface {
 			entityManager.remove(role);
 			flag = 0;
 		} catch (IllegalArgumentException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		} catch (EntityOperationException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		}
 
 		return flag;
@@ -99,8 +89,7 @@ public class RoleBean implements RolesManagementInterface {
 			entityManager.merge(role);
 			flag = 0;
 		} catch (IllegalArgumentException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		}
 		return flag;
 
@@ -111,8 +100,7 @@ public class RoleBean implements RolesManagementInterface {
 		try {
 			roles = entityManager.createNamedQuery("Role.findAll").getResultList();
 		} catch (IllegalArgumentException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		}
 		return roles;
 	}

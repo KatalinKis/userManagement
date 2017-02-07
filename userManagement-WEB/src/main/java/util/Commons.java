@@ -1,6 +1,9 @@
+package util;
+
 import org.jboss.logging.Logger;
 
 import exception.ManagedBeanException;
+import managedBeans.ErrorManagedBean;
 
 public class Commons {
 	private static Commons instance;
@@ -10,6 +13,7 @@ public class Commons {
 	public final String INVALID_DATA = "Please be sure that the input data is correct! Check that there is no entry with given name in case you are trying to add one or that it is an existing entry in case of deletion.";
 	public final String INVALID_ID = "Id must be a number!";
 	public final String INVALID_ROLE = "Couldn't remove role. Possibly the specified role does not exist or is bound to one or more user.";
+	public final String INVALID_LOGIN = "Provided username does not exist!";
 
 	private Commons() {
 	}

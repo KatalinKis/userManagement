@@ -12,9 +12,9 @@ import org.jboss.logging.Logger;
 
 import common.UserManagementInterface;
 import exception.EntityOperationException;
-import model.IEntity;
 import model.Role;
 import model.User;
+import util.EjbCommons;
 
 @Stateless
 public class UserBean implements UserManagementInterface {
@@ -30,8 +30,7 @@ public class UserBean implements UserManagementInterface {
 		try {
 			users = entityManager.createNamedQuery("User.findAll").getResultList();
 		} catch (IllegalArgumentException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		}
 		return users;
 	}
@@ -41,8 +40,7 @@ public class UserBean implements UserManagementInterface {
 		try {
 			user = entityManager.find(User.class, id);
 		} catch (IllegalArgumentException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		}
 		return user;
 	}
@@ -60,12 +58,9 @@ public class UserBean implements UserManagementInterface {
 			entityManager.clear();
 			flag = 0;
 		} catch (IllegalArgumentException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
-
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		} catch (EntityExistsException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		}
 		return flag;
 
@@ -78,31 +73,22 @@ public class UserBean implements UserManagementInterface {
 			entityManager.remove(user);
 			flag = 0;
 		} catch (IllegalArgumentException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		}
 		return flag;
 	}
 
 	public int update(User user) throws EntityOperationException {
 		int flag = -1;
-		oLogger.info("==========================" + user.getUsername() + " " + user.getRoles().toString());
 		try {
-			// user.setRoles(user.getRoles());
-
 			if (!user.getRoles().isEmpty()) {
-				oLogger.info("inside update: " + user.getRoles());
-
 				entityManager.merge(user);
 				flag = 0;
 			}
 		} catch (IllegalArgumentException e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		} catch (Exception e) {
-			oLogger.error(
-					"*******////------------------Update all excepetion -----------///////*********************************");
-			oLogger.error(e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		}
 		return flag;
 	}
@@ -114,8 +100,7 @@ public class UserBean implements UserManagementInterface {
 			roles.add(role);
 			flag = 0;
 		} catch (Exception e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		}
 		return flag;
 	}
@@ -123,16 +108,12 @@ public class UserBean implements UserManagementInterface {
 	public int addRoleUpdate(Role role, User user) throws EntityOperationException {
 		int flag = -1;
 		try {
-			oLogger.info("before role add " + role.getRole());
 			List<Role> newRoles = user.getRoles();
-			oLogger.info(newRoles.toString());
 			newRoles.add(role);
 			user.setRoles(newRoles);
-			oLogger.info("get roles" + user.getRoles().toString());
 			flag = 0;
 		} catch (Exception e) {
-			oLogger.error(e);
-			throw new EntityOperationException("Entity exception caught.", e);
+			EjbCommons.getInstance().throwException(e, EjbCommons.getInstance().ENTITY_ERROR);
 		}
 		return flag;
 	}
