@@ -26,7 +26,7 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 	private String role;
 	private String addSuccess;
 	private boolean exception;
-	private final String internalError = "Internal error!";
+	private final String INTERNAL_ERROR = "Internal error!";
 	private Logger oLogger = Logger.getLogger(UserManagedBean.class);
 
 	private UserManagementInterface getUserManagement() {
@@ -36,20 +36,11 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 				userManagement = (UserManagementInterface) jndi.lookup(
 						"java:global/userManagement-EAR-0.0.1-SNAPSHOT/userManagement-EJB-0.0.1-SNAPSHOT/UserBean");
 			} catch (NamingException e) {
-				ErrorManagedBean.getErrorBean().getErrorBean().setErrorMessage(internalError);
+				ErrorManagedBean.getErrorBean().setErrorMessage(Commons.getInstance().INTERNAL_ERROR);
 				oLogger.error(e);
 			}
 		}
 		return userManagement;
-	}
-
-	private boolean checkInputField(String inputField) throws ManagedBeanException {
-		boolean ok = true;
-		if (inputField.length() == 0) {
-			ok = false;
-			throw new ManagedBeanException("Input field can't be empty!");
-		}
-		return ok;
 	}
 
 	public List<?> getAll() throws ManagedBeanException {
@@ -57,12 +48,9 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		try {
 			users = getUserManagement().getAllUser();
 		} catch (EntityOperationException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
+			Commons.getInstance().throwException(Commons.getInstance().INTERNAL_ERROR);
 		} catch (ManagedBeanException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-			throw new ManagedBeanException(internalError);
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_DATA);
 		}
 		clearInputFields();
 		return users;
@@ -70,16 +58,15 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 
 	public int removeUser() throws ManagedBeanException {
 		try {
-			if (checkInputField(searchId)) {
+			if (Commons.getInstance().checkInputField(searchId)) {
 				remove(Integer.parseInt(searchId));
+			} else {
+				Commons.getInstance().throwEmptyFieldError();
 			}
 		} catch (NumberFormatException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage("User id must be a number!");
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_DATA);
 		} catch (ManagedBeanException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-			throw new ManagedBeanException(internalError);
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_DATA);
 		}
 		clearInputFields();
 		return 0;
@@ -87,43 +74,48 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 
 	public int updateUser() throws ManagedBeanException {
 		User userToUpdate = new User();
+		boolean isUserNameProvided = false;
+		boolean isRoleProvided = false;
+		boolean isIdprovided = false;
 		try {
-			if (checkInputField(searchId)) {
+			if (Commons.getInstance().checkInputField(searchId)) {
+				isIdprovided = true;
 				userToUpdate = getUserManagement().getById(Integer.parseInt(searchId));
 			}
-			if (checkInputField(username)) {
+			if (Commons.getInstance().checkInputField(username)) {
+				isUserNameProvided = true;
 				userToUpdate.setUsername(username);
+			} else {
+				userToUpdate.setUsername(userToUpdate.getUsername());
 			}
 			try {
-				if (checkInputField(role)) {
+				if (Commons.getInstance().checkInputField(role)) {
 					if (!userToUpdate.getRoles().contains(role)) {
+						isRoleProvided = true;
 						Role requestedRole = getRole(role);
 						addRoleUpdate(requestedRole, userToUpdate);
 					}
+				} else {
+					userToUpdate.setRoles(userToUpdate.getRoles());
 				}
-				update(userToUpdate);
+				if ((isUserNameProvided && !isRoleProvided && isIdprovided)
+						|| (!isUserNameProvided && isRoleProvided && isIdprovided)
+						|| (isUserNameProvided && isRoleProvided && isIdprovided)) {
+					update(userToUpdate);
+				} else {
+					Commons.getInstance().throwException(Commons.getInstance().INVALID_DATA);
+				}
 			} catch (ManagedBeanException e) {
-				oLogger.error(e);
-				ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-				throw new ManagedBeanException(internalError);
+				Commons.getInstance().throwException(Commons.getInstance().EMPTY_FIELD);
 			} catch (Exception e) {
-				oLogger.error(e);
-				ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-				throw new ManagedBeanException(internalError);
-
+				Commons.getInstance().throwException(Commons.getInstance().EMPTY_FIELD);
 			}
 		} catch (ManagedBeanException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-			throw new ManagedBeanException(internalError);
+			Commons.getInstance().throwException(Commons.getInstance().EMPTY_FIELD);
 		} catch (NumberFormatException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage("Id must be a number!");
-			throw new ManagedBeanException(internalError);
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_ID);
 		} catch (EntityOperationException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-			throw new ManagedBeanException(internalError);
+			Commons.getInstance().throwException(Commons.getInstance().INTERNAL_ERROR);
 		}
 		clearInputFields();
 		return 0;
@@ -133,12 +125,9 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		try {
 			getUserManagement().addRoleUpdate(requestedRole, userToUpdate);
 		} catch (EntityOperationException e) {
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-			throw new ManagedBeanException(internalError);
+			Commons.getInstance().throwException(Commons.getInstance().INTERNAL_ERROR);
 		} catch (ManagedBeanException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-			throw new ManagedBeanException(internalError);
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_DATA);
 		}
 		return 0;
 	}
@@ -147,21 +136,20 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		try {
 			getUserManagement().addRole(role);
 		} catch (EntityOperationException e) {
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-			throw new ManagedBeanException(internalError);
+			Commons.getInstance().throwException(Commons.getInstance().INTERNAL_ERROR);
 		}
 		return 0;
 	}
 
 	public int addUser() throws ManagedBeanException {
 		try {
-			if (checkInputField(username) && checkInputField(role)) {
+			if (Commons.getInstance().checkInputField(username) && Commons.getInstance().checkInputField(role)) {
 				add(username);
+			} else {
+				Commons.getInstance().throwEmptyFieldError();
 			}
 		} catch (ManagedBeanException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-			throw new ManagedBeanException(internalError);
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_DATA);
 		}
 		clearInputFields();
 		return 0;
@@ -173,7 +161,7 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		try {
 			getUserManagement().add(username);
 		} catch (EntityOperationException e) {
-			throw new ManagedBeanException("Unable to add user!", e);
+			Commons.getInstance().throwException(Commons.getInstance().INTERNAL_ERROR);
 		}
 		return 0;
 	}
@@ -182,7 +170,7 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		try {
 			getUserManagement().remove(id);
 		} catch (EntityOperationException e) {
-			throw new ManagedBeanException(internalError, e);
+			Commons.getInstance().throwException(Commons.getInstance().INTERNAL_ERROR);
 		}
 		return 0;
 	}
@@ -201,7 +189,7 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 			}
 		}
 		if (!updated) {
-			throw new ManagedBeanException("Specified user doesn't exist!");
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_DATA);
 		}
 		return 0;
 	}
@@ -211,7 +199,7 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		try {
 			users = getUserManagement().getAllUser();
 		} catch (EntityOperationException e) {
-			throw new ManagedBeanException("There are no users!", e);
+			Commons.getInstance().throwException(Commons.getInstance().INTERNAL_ERROR);
 		}
 		return users;
 	}
@@ -221,7 +209,7 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 		try {
 			user = getUserManagement().getById(id);
 		} catch (EntityOperationException e) {
-			throw new ManagedBeanException("No user with given id!", e);
+			Commons.getInstance().throwException(Commons.getInstance().INTERNAL_ERROR);
 		}
 		return user;
 	}
@@ -279,7 +267,7 @@ public class UserManagedBean implements Serializable, UserManagementInterface {
 			}
 		}
 		if (!found) {
-			throw new ManagedBeanException("The specified role does not exist!");
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_DATA);
 		}
 		return requestedRole;
 	}

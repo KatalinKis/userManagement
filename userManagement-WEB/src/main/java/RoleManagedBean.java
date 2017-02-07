@@ -13,11 +13,12 @@ import common.RolesManagementInterface;
 import exception.EntityOperationException;
 import exception.ManagedBeanException;
 import model.Role;
-import model.User;
 
 @Named("roleBean")
 @ApplicationScoped
 public class RoleManagedBean implements Serializable, RolesManagementInterface {
+
+	private static final long serialVersionUID = -3112345987180492075L;
 	private RolesManagementInterface roleManagement;
 	private String searchId;
 	private String rolename;
@@ -44,7 +45,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 		boolean ok = true;
 		if (inputField.length() == 0) {
 			ok = false;
-			throw new ManagedBeanException("Input field can't be empty!");
+			Commons.getInstance().throwException(Commons.getInstance().EMPTY_FIELD);
 		}
 		return ok;
 	}
@@ -53,7 +54,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 		try {
 			getRoleManagement().add(rolename);
 		} catch (EntityOperationException e) {
-			throw new ManagedBeanException("Couldn't add role. Possibly the role already exists.", e);
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_DATA);
 		}
 		return 0;
 	}
@@ -64,8 +65,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 				add(rolename);
 			}
 		} catch (ManagedBeanException e) {
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-			throw new ManagedBeanException("Internal error!", e);
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_DATA);
 		}
 		clearInputFields();
 		return 0;
@@ -75,15 +75,11 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 		try {
 			getRoleManagement().remove(id);
 		} catch (EntityOperationException e) {
-			throw new ManagedBeanException(
-					"Couldn't remove role. Possibly the specified role does not exist or is bound to one or more user.",
-					e);
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_ROLE);
 		} catch (ManagedBeanException e) {
-			throw new ManagedBeanException(
-					"Couldn't remove role. Possibly the specified role does not exist or is bound to one or more user.");
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_ROLE);
 		} catch (Exception e) {
-			throw new ManagedBeanException(
-					"Couldn't remove role. Possibly the specified role does not exist or is bound to one or more user.");
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_ROLE);
 		}
 		return 0;
 	}
@@ -94,13 +90,9 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 				remove(Integer.parseInt(searchId));
 			}
 		} catch (NumberFormatException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage("User id must be a number!");
-			throw new ManagedBeanException(internalError);
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_ID);
 		} catch (ManagedBeanException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-			throw new ManagedBeanException(internalError);
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_ROLE);
 		}
 		clearInputFields();
 		return 0;
@@ -110,7 +102,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 		try {
 			getRoleManagement().update(role);
 		} catch (EntityOperationException e) {
-			throw new ManagedBeanException("Couldn't update user!", e);
+			Commons.getInstance().throwException(Commons.getInstance().INTERNAL_ERROR);
 		}
 		return 0;
 	}
@@ -122,15 +114,13 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 				role.setId(Integer.parseInt(searchId));
 				role.setRole(rolename);
 				update(role);
+			} else {
+				Commons.getInstance().throwException(Commons.getInstance().EMPTY_FIELD);
 			}
 		} catch (NumberFormatException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-			throw new ManagedBeanException(internalError);
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_DATA);
 		} catch (ManagedBeanException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-			throw new ManagedBeanException(internalError);
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_DATA);
 		}
 		clearInputFields();
 		return 0;
@@ -140,7 +130,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 		try {
 			roles = getRoleManagement().getAllRoles();
 		} catch (EntityOperationException e) {
-			throw new ManagedBeanException("There are no users!", e);
+			Commons.getInstance().throwException(Commons.getInstance().INTERNAL_ERROR);
 		}
 		return roles;
 	}
@@ -157,9 +147,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 		try {
 			roles = getAllRoles();
 		} catch (ManagedBeanException e) {
-			oLogger.error(e);
-			ErrorManagedBean.getErrorBean().setErrorMessage(e.getMessage());
-			throw new ManagedBeanException(internalError);
+			Commons.getInstance().throwException(Commons.getInstance().INTERNAL_ERROR);
 		}
 		clearInputFields();
 		return roles;
@@ -170,7 +158,7 @@ public class RoleManagedBean implements Serializable, RolesManagementInterface {
 		try {
 			role = getRoleManagement().getById(id);
 		} catch (EntityOperationException e) {
-			throw new ManagedBeanException("No user with given id!", e);
+			Commons.getInstance().throwException(Commons.getInstance().INVALID_DATA);
 		}
 		return role;
 	}
